@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.ServletException;
 
+import com.cloudbees.hudson.plugins.folder.Folder;
 import jenkins.model.Jenkins;
 import jenkins.util.TimeDuration;
 
@@ -82,6 +83,20 @@ public class GeneratorParametersDefinitionProperty
         }
         this.globalParameterDefinitions = new ArrayList<ParameterDefinition>();
         this.localParameterDefinitions = new ArrayList<ParameterDefinition>();
+    }
+
+    public Folder getFolder() {
+        return folder;
+    }
+
+    public void setFolder(Folder folder) {
+        this.folder = folder;
+    }
+
+    Folder folder;
+
+    public List<Folder> getFolders() {
+        return Jenkins.getInstance().getItems(Folder.class);
     }
 
     // required since setOwner is protected.

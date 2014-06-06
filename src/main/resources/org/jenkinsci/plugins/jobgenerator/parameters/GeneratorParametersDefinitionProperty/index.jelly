@@ -67,6 +67,14 @@ THE SOFTWARE.
             </j:forEach>
           </f:section>
         </j:if>
+
+          <f:dropdownList name="folder"  title="Destination Folder">
+              <j:forEach var="f" items="${it.getFolders()}" varStatus="loop">
+                  <f:dropdownListBlock value="${f.getName()}"  title="${f.getName()}" >
+                  </f:dropdownListBlock>
+              </j:forEach>
+          </f:dropdownList>
+
         <f:section title="${%Options}">
           <f:optionalBlock name="processthisjob" title="${%Process this
           job only}" checked="false" help="/plugin/jobgenerator/help-processthisjob.html"/>
