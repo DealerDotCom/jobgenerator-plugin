@@ -150,6 +150,7 @@ public class GeneratorParametersDefinitionProperty
                 }
             }
             JobGenerator p = (JobGenerator)this.getOwner();
+            p.setFolderName(json.getString("folder"));
             p.setDelete(false);
             JSONObject o = json.getJSONObject("delete");
             if(!o.isNullObject()){

@@ -34,10 +34,12 @@ import hudson.model.Action;
 public class GeneratedJobBuildAction implements Action {
     public final String jobName;
     public final boolean created;
+    public final String folder;
 
-    public GeneratedJobBuildAction(String job, boolean created) {
+    public GeneratedJobBuildAction(String job, boolean created, String folder) {
         this.jobName = job;
         this.created = created;
+        this.folder = folder;
     }
 
     /**

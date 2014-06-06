@@ -40,7 +40,7 @@ t.summary(icon:"folder.png") {
     }
     ul(class:"jobList") {
         li() {
-            a(href:"${rootURL}/job/${my?.jobName}/",
+            a(href:"${rootURL}/job/${my?.folder}/job/${my?.jobName}/",
                                  class:"model-link tl-tr") { raw(my?.jobName) }
         }
     }

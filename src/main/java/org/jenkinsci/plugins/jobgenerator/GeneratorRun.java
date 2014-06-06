@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 package org.jenkinsci.plugins.jobgenerator;
 
+import com.cloudbees.hudson.plugins.folder.Folder;
 import hudson.Util;
 import hudson.model.Build;
 import hudson.model.BuildListener;
@@ -305,7 +306,7 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
                 String expDispName = expand(
                         job.getGeneratedDisplayJobName(), params);
                 File d = new File(job.getRootDir() +
-                                  File.separator + ".." + File.separator +
+                                  File.separator + ".." + File.separator + job.getFolderName() + File.separator +
                                   expName);
                 if (!d.exists() && !d.mkdir()) {
                     return Result.FAILURE;
@@ -425,14 +426,17 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
                 }
                 else{
                     item = (AbstractProject)
-                            Jenkins.getInstance().createProjectFromXML(
+                            ((Folder) Jenkins.getInstance().getItem(job.getFolderName())).createProjectFromXML(
                                                                   expName, is);
                     LOGGER.info(String.format("Created job %s", expName));
                 }
                 // save generated job name
                 GeneratedJobBuildAction action =
-                              new GeneratedJobBuildAction(expName, item!=null);
+                              new GeneratedJobBuildAction(expName, item!=null, job.getFolderName());
                 getBuild().addAction(action);
+
+                // Move project here.
+
                 // auto run the job
                 if(job.getAutoRunJob()){
                     Cause.UserIdCause cause = new Cause.UserIdCause();
