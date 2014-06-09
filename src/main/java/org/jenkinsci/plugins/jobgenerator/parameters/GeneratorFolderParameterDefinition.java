@@ -48,7 +48,7 @@ public class GeneratorFolderParameterDefinition
 
     @DataBoundConstructor
     public GeneratorFolderParameterDefinition() {
-        super("folder", "", "Destination Folder");
+        super("folder", "", "Where the generated jobs will be created");
     }
 
     @Override
