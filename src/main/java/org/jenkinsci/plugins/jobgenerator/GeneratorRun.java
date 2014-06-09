@@ -289,7 +289,7 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
             // TODO syl20bnr: This function is a big mess. I plan to
             // refactor it for testing purpose.
             if(!this.checkParameters(listener)){
-                LOGGER.info(String.format("Parameter check failed."));
+                listener.fatalError(String.format("Parameter check failed."));
                 return Result.FAILURE;
             }
             JobGenerator job = getJobGenerator();
@@ -298,7 +298,7 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
             String expName = getExpandedJobName(job, params);
 
             if(params.size() <= 0 || params.get(0) == null) {
-                LOGGER.info("No parameters found.");
+                listener.fatalError("No parameters found.");
                 return Result.FAILURE;
             }
 
@@ -311,13 +311,13 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
             }
 
             if(folderName == null || folderName.equals("")) {
-                LOGGER.info("No folder parameter specified.");
+                listener.fatalError("No folder parameter specified.");
                 return Result.FAILURE;
             }
 
             TopLevelItem folderItem = Jenkins.getInstance().getItem(folderName);
             if(folderItem == null || !(folderItem instanceof Folder)) {
-                LOGGER.info("Folder parameter " + folderName + " does not reference a valid folder.");
+                listener.fatalError("Folder parameter " + folderName + " does not reference a valid folder.");
                 return Result.FAILURE;
             }
 
@@ -337,7 +337,7 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
                                   File.separator + folder.getName() + File.separator + "jobs" + File.separator +
                                   expName).getCanonicalFile();
                 if (!d.exists() && !d.mkdir()) {
-                    LOGGER.info(String.format("Unable to create directory: " + d.getCanonicalPath()));
+                    listener.fatalError(String.format("Unable to create directory: " + d.getCanonicalPath()));
                     return Result.FAILURE;
                 }
                 SAXReader reader = new SAXReader();
@@ -446,18 +446,18 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
                                                 doc.asXML().getBytes("UTF-8"));
 //                System.out.println(doc.asXML());
                 AbstractProject item = 
-                        (AbstractProject) Jenkins.getInstance().getItem(expName);
+                        (AbstractProject) ((Folder) Jenkins.getInstance().getItem(folder.getName())).getItem(expName);
                 if(item != null){
                     StreamSource ss = new StreamSource(is);
                     item.updateByXml((Source)ss);
-                    LOGGER.info(String.format("Updated configuration of " +
+                    listener.getLogger().println(String.format("Updated configuration of " +
                                               "job %s", expName));
                 }
                 else{
                     item = (AbstractProject)
                             ((Folder) Jenkins.getInstance().getItem(folder.getName())).createProjectFromXML(
                                                                   expName, is);
-                    LOGGER.info(String.format("Created job %s", expName));
+                    listener.getLogger().println(String.format("Created job %s", expName));
                 }
                 // save generated job name
                 GeneratedJobBuildAction action =
