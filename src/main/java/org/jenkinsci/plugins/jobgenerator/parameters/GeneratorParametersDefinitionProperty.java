@@ -77,26 +77,13 @@ public class GeneratorParametersDefinitionProperty
         List<ParameterDefinition> lpd = property.getParameterDefinitions();
         for(ParameterDefinition pd: lpd){
             if (GeneratorKeyValueParameterDefinition.class.isInstance(pd) ||
-                GeneratorChoiceParameterDefinition.class.isInstance(pd)){
+                GeneratorChoiceParameterDefinition.class.isInstance(pd) ||
+                pd instanceof GeneratorFolderParameterDefinition){
                 this.generatorParameterDefinitions.add(pd);
             }
         }
         this.globalParameterDefinitions = new ArrayList<ParameterDefinition>();
         this.localParameterDefinitions = new ArrayList<ParameterDefinition>();
-    }
-
-    public Folder getFolder() {
-        return folder;
-    }
-
-    public void setFolder(Folder folder) {
-        this.folder = folder;
-    }
-
-    Folder folder;
-
-    public List<Folder> getFolders() {
-        return Jenkins.getInstance().getItems(Folder.class);
     }
 
     // required since setOwner is protected.
@@ -123,7 +110,8 @@ public class GeneratorParametersDefinitionProperty
         out.clear();
         for(ParameterDefinition pd: in){
             if(GeneratorKeyValueParameterDefinition.class.isInstance(pd) ||
-               GeneratorChoiceParameterDefinition.class.isInstance(pd)) {
+               GeneratorChoiceParameterDefinition.class.isInstance(pd) ||
+               pd instanceof GeneratorFolderParameterDefinition) {
                 out.add(pd);
             }
         }
@@ -150,7 +138,6 @@ public class GeneratorParametersDefinitionProperty
                 }
             }
             JobGenerator p = (JobGenerator)this.getOwner();
-            p.setFolderName(json.getString("folder"));
             p.setDelete(false);
             JSONObject o = json.getJSONObject("delete");
             if(!o.isNullObject()){

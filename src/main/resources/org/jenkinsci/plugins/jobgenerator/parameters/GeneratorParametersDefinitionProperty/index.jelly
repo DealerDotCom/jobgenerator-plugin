@@ -43,6 +43,7 @@ THE SOFTWARE.
       <j:set var="delay" value="${request.getParameter('delay')}" />
       <f:form method="post" action="build${empty(delay)?'':'?delay='+delay}" name="parameters"
               tableClass="parameters">
+          <div class="">${it.getClass()}</div>
         <j:set var="globalParameters" value="${it.globalParameters}" />
         <j:if test="${!empty(globalParameters)}">
           <f:section title="${%Global Generation Parameters}">
@@ -67,14 +68,6 @@ THE SOFTWARE.
             </j:forEach>
           </f:section>
         </j:if>
-
-          <f:entry field="folder" title="Destination Folder">
-              <select name="folder">
-                  <j:forEach var="f" items="${it.getFolders()}" varStatus="loop">
-                      <option value="${f.getName()}">${f.getName()}</option>
-                  </j:forEach>
-              </select>
-          </f:entry>
 
           <!--  Disabled because these options don't support folders (yet?)
         <f:section title="${%Options}">

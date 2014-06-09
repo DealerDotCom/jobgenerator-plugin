@@ -67,10 +67,23 @@ public class GeneratorCurrentParameters extends AbstractBuildParameters {
             List<ParameterValue> values = new ArrayList<ParameterValue>(action
                     .getParameters().size());
             for (ParameterValue value : action.getParameters()){
-                if(GeneratorKeyValueParameterValue.class.isInstance(value)){
+                if(GeneratorKeyValueParameterValue.class.isInstance(value) || value instanceof GeneratorFolderParameterValue){
                     values.add(value);
                 }
             }
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("[parameterized-trigger] Current build has ");
+            sb.append(values.size());
+            sb.append(" parameters:");
+            sb.append('\n');
+
+            for(ParameterValue v : values) {
+                sb.append(v.toString()).append('\n');
+            }
+
+            listener.getLogger().println(sb.toString());
+
             return values.isEmpty() ? null : new ParametersAction(values);
         }
     }

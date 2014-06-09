@@ -289,12 +289,40 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
             // TODO syl20bnr: This function is a big mess. I plan to
             // refactor it for testing purpose.
             if(!this.checkParameters(listener)){
+                LOGGER.info(String.format("Parameter check failed."));
                 return Result.FAILURE;
             }
             JobGenerator job = getJobGenerator();
             List<ParametersAction> params = getBuild().getActions(
                                           hudson.model.ParametersAction.class);
             String expName = getExpandedJobName(job, params);
+
+            if(params.size() <= 0 || params.get(0) == null) {
+                LOGGER.info("No parameters found.");
+                return Result.FAILURE;
+            }
+
+            String folderName = null;
+            for(ParameterValue v : params.get(0)) {
+                if(v instanceof GeneratorFolderParameterValue) {
+                    folderName = ((GeneratorFolderParameterValue) v).value;
+                    break;
+                }
+            }
+
+            if(folderName == null || folderName.equals("")) {
+                LOGGER.info("No folder parameter specified.");
+                return Result.FAILURE;
+            }
+
+            TopLevelItem folderItem = Jenkins.getInstance().getItem(folderName);
+            if(folderItem == null || !(folderItem instanceof Folder)) {
+                LOGGER.info("Folder parameter " + folderName + " does not reference a valid folder.");
+                return Result.FAILURE;
+            }
+
+            Folder folder = (Folder) folderItem;
+
             if(job.getDelete()){
                 List<String> jobs = new ArrayList<String>();
                 this.deleteJobs(job, !job.getProcessThisJobOnly(), jobs);
@@ -305,10 +333,11 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
             else{
                 String expDispName = expand(
                         job.getGeneratedDisplayJobName(), params);
-                File d = new File(job.getRootDir() +
-                                  File.separator + ".." + File.separator + job.getFolderName() + File.separator +
-                                  expName);
+                File d = new File(Jenkins.getInstance().getRootDir() + File.separator + "jobs" +
+                                  File.separator + folder.getName() + File.separator + "jobs" + File.separator +
+                                  expName).getCanonicalFile();
                 if (!d.exists() && !d.mkdir()) {
+                    LOGGER.info(String.format("Unable to create directory: " + d.getCanonicalPath()));
                     return Result.FAILURE;
                 }
                 SAXReader reader = new SAXReader();
@@ -426,13 +455,13 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
                 }
                 else{
                     item = (AbstractProject)
-                            ((Folder) Jenkins.getInstance().getItem(job.getFolderName())).createProjectFromXML(
+                            ((Folder) Jenkins.getInstance().getItem(folder.getName())).createProjectFromXML(
                                                                   expName, is);
                     LOGGER.info(String.format("Created job %s", expName));
                 }
                 // save generated job name
                 GeneratedJobBuildAction action =
-                              new GeneratedJobBuildAction(expName, item!=null, job.getFolderName());
+                              new GeneratedJobBuildAction(expName, item!=null, folder.getName());
                 getBuild().addAction(action);
 
                 // Move project here.
@@ -910,7 +939,8 @@ public class GeneratorRun extends Build<JobGenerator, GeneratorRun> {
                n.contains("GeneratorCurrentParameters") ||
                n.contains("PredefinedGeneratorParameters") ||
                n.contains("CounterGeneratorParameterFactory") ||
-               n.contains("FileGeneratorParameterFactory")){
+               n.contains("FileGeneratorParameterFactory") ||
+               n.contains("GeneratorFolderParameterDefinition")){
                 this.toRemove.add(node);
             }
         }

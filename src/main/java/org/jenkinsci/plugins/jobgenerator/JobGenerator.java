@@ -74,19 +74,10 @@ public class JobGenerator extends Project<JobGenerator, GeneratorRun>
     private String generatedJobName = "";
     private String generatedDisplayJobName = "";
     private boolean autoRunJob = false;
-    private String folderName = "";
 
     @DataBoundConstructor
     public JobGenerator(ItemGroup parent, String name) {
         super(parent, name);
-    }
-
-    public String getFolderName() {
-        return folderName;
-    }
-
-    public void setFolderName(String folderName) {
-        this.folderName = folderName;
     }
 
     @Override
